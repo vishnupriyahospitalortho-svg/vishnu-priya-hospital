@@ -1,0 +1,6 @@
+{
+  "name": "Vishnu Priya Hospital",
+  "description": "Official app for Vishnu Priya Hospital, Korutla — Orthopedic care, 24/7 trauma emergency, OPD schedule, direct payment billing policy, and hospital services.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
