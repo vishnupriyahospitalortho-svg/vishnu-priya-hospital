@@ -1,4 +1,4 @@
-name: Fix AI Studio Build Failure
+name: Fix AI Studio Build Failure #3
 
 on:
   push:
@@ -13,8 +13,15 @@ jobs:
     - name: Checkout Source
       uses: actions/checkout@v4
 
-    # Fix 1: Google AI Studio uses JDK 17 or JDK 21 depending on the prompt timestamp
-    - name: Set up Java
+    # Fix 1: Maximize internal heap sizes to prevent out-of-memory container crashes
+    - name: Tune Compiler Memory Limits
+      run: |
+        mkdir -p ~/.gradle
+        echo "org.gradle.jvmargs=-Xmx4g -XX:MaxMetaspaceSize=1g -XX:+UseParallelGC" >> ~/.gradle/gradle.properties
+        echo "android.enableJetifier=true" >> ~/.gradle/gradle.properties
+
+    # Fix 2: AI Studio architectures natively mandate modern JDK environments
+    - name: Set up Java Development Kit
       uses: actions/setup-java@v4
       with:
         distribution: 'zulu'
@@ -24,8 +31,8 @@ jobs:
     - name: Grant Execute Permission
       run: chmod +x gradlew
 
-    # Fix 2: Force Gradle to clear dependency locks and download matching configurations
-    - name: Clean and Build Debug APK
+    # Fix 3: De-duplicate dynamic configurations and build cleanly
+    - name: Execute Resilient Android Compile
       run: ./gradlew clean assembleDebug --no-daemon --stacktrace
       
     - name: Upload Debug APK
@@ -34,4 +41,5 @@ jobs:
         name: AI-Studio-Fixed-APK
         path: app/build/outputs/apk/debug/*.apk
 
+   
      
