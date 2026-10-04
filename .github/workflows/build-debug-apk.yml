@@ -1,33 +1,37 @@
-name: Build AI Studio Debug APK
+name: Fix AI Studio Build Failure
 
 on:
   push:
-    branches: [ main, master ]  # Fires automatically whenever you push code
-  workflow_dispatch:            # Allows you to click a button to build manually
+    branches: [ main, master ]
+  workflow_dispatch:
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout Repository
+    - name: Checkout Source
       uses: actions/checkout@v4
 
-    - name: Set up Java JDK 17
+    # Fix 1: Google AI Studio uses JDK 17 or JDK 21 depending on the prompt timestamp
+    - name: Set up Java
       uses: actions/setup-java@v4
       with:
-        distribution: 'temurin'
-        java-version: '17'     # Native AI Studio Kotlin apps utilize JDK 17+
+        distribution: 'zulu'
+        java-version: '17' 
         cache: gradle
 
-    - name: Grant Execute Permission for Gradle
+    - name: Grant Execute Permission
       run: chmod +x gradlew
 
-    - name: Build Debug APK
-      run: ./gradlew assembleDebug
-
+    # Fix 2: Force Gradle to clear dependency locks and download matching configurations
+    - name: Clean and Build Debug APK
+      run: ./gradlew clean assembleDebug --no-daemon --stacktrace
+      
     - name: Upload Debug APK
       uses: actions/upload-artifact@v4
       with:
-        name: AI-Studio-Debug-APK
+        name: AI-Studio-Fixed-APK
         path: app/build/outputs/apk/debug/*.apk
+
+     
